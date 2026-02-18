@@ -4,15 +4,11 @@ public class Main {
         // greater than 0
         if (args.length > 0) {
 
-            System.out.println("Enter your key length 
-            the key represented as a hezadecimal string, nonce(IV)
-            represented as a hexadecimal string, and the text
-            string to be encrypted/decrypted in hexadecimal format:");
+            System.out.println("Enter your key length as a hexadecimal string, nonce(IV) represented as a hexadecimal string, and the textstring to be encrypted/decrypted in hexadecimal format:");
             // Print statements
             System.out.println("The command line"
                                + " arguments are:");
 
-            // Iterating the args array
             // using for each loop
             for (String val : args)
 
