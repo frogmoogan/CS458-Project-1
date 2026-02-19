@@ -1,54 +1,27 @@
 public class Main {
-    int keysize = 0;
-    String stringkey = "";
-    String nonce = "";
-    String plaintxt = "";
-    //not needed necessarily
-    //String ciphertxt = "";
 
-    /* 
-    static int quarterround(y0,y1,y2,y3) {
-        //whatever quarterround does
-        //come back to this later
-         
-  }
-  */
+    public static void main(String[] args) {
 
-  public static void main(String[] args) {
-        Main myObj = new Main();
-        // Checking if length of args array is
-        // greater than 0
-        if (args.length > 0) {
-
-            // Print statements
-            /* 
-            System.out.println("The command line arguments are:");
-
-            // using for each loop
-            for (String val : args)
-                System.out.println(val);
-            */
+        
+        if (args.length != 4) {
+            System.out.println("Usage: java Main <keySize> <key> <nonce> <plaintext>");
+            return;
         }
-        else{
+        
 
-            System.out.println("No command line arguments found.");
-        }
+        int keySize = Integer.parseInt(args[0]);
+        byte[] key = args[1].getBytes();
+        byte[] nonce = args[2].getBytes();
+        byte[] plaintext = args[3].getBytes();
 
-        //reassigning values
-        myObj.keysize = Integer.valueOf(args[0]);
-        myObj.stringkey = args[1];
-        myObj.nonce = args[2];
-        myObj.plaintxt = args[3];
-        //myObj.ciphertxt = args[4];
+        salsa20 cipher = new salsa20(keySize, key, nonce, plaintext);
+        //salsa20.testQuarterRound();
+        //salsa20.testrowRound();
+        //salsa20.testcolumnRound();
+        //salsa20.testdoubleRound();
 
-        //print check reassigning workability
-        /*
-        System.out.println("keysize : " + myObj.keysize);
-        System.out.println("stringkey : " + myObj.stringkey);
-        System.out.println("nonce : " + myObj.nonce);
-        System.out.println("plaintxt : " + myObj.plaintxt);
-        */
-        //System.out.println("ciphertxt : " + myObj.ciphertxt);
+        //byte[] ciphertext = cipher.encrypt(plaintext);
 
+        //System.out.println(new String(ciphertext));
     }
- }
+}
