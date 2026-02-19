@@ -99,13 +99,26 @@ public class salsa20 {
         int[] output = doubleRound(input);
 
         System.out.println("Input: ");
-        for (int i : input) System.out.printf("%08x ", i);
+        for (int i : input){
+         System.out.printf("%08x ", i);
+        }
         System.out.println("\nOutput: ");
         for (int i : output) System.out.printf("%08x ", i);
     }
     
-    
     */
+
+    public static void testlittleendian() {
+        int[] input = {0,0,0,0};
+        long output = littleendian(input);
+
+        System.out.println("Input: ");
+        for (int i : input){
+            System.out.printf("%08x ", i);
+        }
+        System.out.printf("\n%08x ", output);
+       
+    }
     
 
     //backend functions//
@@ -194,15 +207,28 @@ public class salsa20 {
         return z;
     }
 
-    private static int[] doubleRound(int[] state) {
-        return rowRound(columnRound(state));
+    private static int[] doubleRound(int[] input) {
+        return rowRound(columnRound(input));
     }
 
-    private static int[] hash(int[] state) {
-        // 10 double rounds
-        // Add original state
-        return null;
+    private static long littleendian(int[] input) {
+        long b0 = input[0];
+        long b1 = input[1];
+        long b2 = input[2];
+        long b3 = input[3];
+
+        //long to keep all the components
+        long b = (long) (b0 + (b1 * Math.pow(2,8)) + (b2 * Math.pow(2,16)) + (b3 * Math.pow(2,24)));
+        return b;
     }
+
+    /* 
+    private static int[] hash(int[] input) {
+        //first section,
+       
+
+    }
+    */
     
 
 }

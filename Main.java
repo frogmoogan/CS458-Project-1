@@ -19,6 +19,7 @@ public class Main {
         //salsa20.testrowRound();
         //salsa20.testcolumnRound();
         //salsa20.testdoubleRound();
+        salsa20.testlittleendian();
 
         //byte[] ciphertext = cipher.encrypt(plaintext);
 
