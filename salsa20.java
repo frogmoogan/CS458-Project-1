@@ -1,13 +1,13 @@
 public class salsa20 {
 
-    //making these arrays for easier access
+    //making these arrays for easier access//
     private int keySize;
-    private byte[] key;
-    private byte[] nonce;
-    private byte[] plaintext;
+    private int[] key;
+    private int[] nonce;
+    private int[] plaintext;
 
     //constructor//
-    public salsa20(int keySize, byte[] key, byte[] nonce, byte[] plaintext) {
+    public salsa20(int keySize, int[] key, int[] nonce, int[] plaintext) {
         //some sort of validation (?)
 
         this.keySize = keySize;
@@ -21,35 +21,8 @@ public class salsa20 {
         return Integer.rotateLeft(value, bits);
     }
 
-    
-    //general functions//
-    /* 
-    public byte[] encrypt(byte[] plaintext) {
-        return process(plaintext);
-    }
 
-    public byte[] decrypt(byte[] ciphertext) {
-        // Salsa20 is symmetric
-        return process(ciphertext);
-    }
-
-    private byte[] process(byte[] input) {
-        // 1. Split into 64-byte blocks
-        // 2. Generate keystream blocks
-        // 3. XOR keystream with input
-        // 4. Increment counter per block
-        return null; // placeholder
-    }
-
-    private byte[] generateKeystreamBlock(long counter) {
-        // 1. Build initial 16-word state
-        // 2. Run salsa20Hash
-        // 3. Convert words to bytes
-        return null;
-    }
-    */
-
-    //testing functions//
+    //testing functions for each individual function//
     /*
     public static void testQuarterRound() {
         int[] input = {0x00000000, 0x00000000, 0x00000001, 0x00000000};
@@ -106,7 +79,7 @@ public class salsa20 {
         for (int i : output) System.out.printf("%08x ", i);
     }
     
-    */
+    
 
     public static void testlittleendian() {
         int[] input = {0,0,0,0};
@@ -119,11 +92,55 @@ public class salsa20 {
         System.out.printf("\n%08x ", output);
        
     }
+        
+    
+    public static void testhash() {
+        int[] input = {6,124, 83,146, 38,191, 9, 50, 4,161, 47,222,122,182,223,185,
+75, 27, 0,216, 16,122, 7, 89,162,104,101,147,213, 21, 54, 95,
+225,253,139,176,105,132, 23,116, 76, 41,176,207,221, 34,157,108,
+94, 94, 99, 52, 90,117, 91,220,146,190,239,143,196,176,130,186};
+        int[] output = hash(input);
+
+        System.out.println("\nInput: ");
+        for (int i = 0; i < input.length; i++) {
+        System.out.print(input[i]);
+        if (i < input.length - 1) {
+            System.out.print(", ");
+        }
+        }
+
+        System.out.println("\nOutput: ");
+        for (int i = 0; i < output.length; i++) {
+        System.out.print(output[i]);
+        if (i < output.length - 1) {
+            System.out.print(", ");
+        }
+        }
+       
+    }
+
+    
+
+     public static void testexpansion() {
+        int[] k0 = {1,2,3,4,5,6,7,8,9,10,11,12,13,14,15,16};
+        int[] k1 = {201,202,203,204,205,206,207,208,209,210,211,212,213,214,215,216}; 
+        int[] n = {101,102,103,104,105,106,107,108,109,110,111,112,113,114,115,116};
+        int[] output = expansion(k0,n);
+
+        System.out.println("\nOutput: ");
+        for (int i = 0; i < output.length; i++) {
+        System.out.print(output[i]);
+        if (i < output.length - 1) {
+            System.out.print(", ");
+        }
+        }
+    }
+    */
     
 
     //backend functions//
     private static int[] quarterRound(int[] input) {
-        //output matrix
+        //output matrix//
         int[] z = new int[4];
 
         int y0 = input[0];
@@ -131,7 +148,7 @@ public class salsa20 {
         int y2 = input[2];
         int y3 = input[3];
 
-        //using addition which is mod 2^32
+        //using addition which is mod 2^32//
         int z1 = y1 ^ Integer.rotateLeft(y0 + y3, 7);
         int z2 = y2 ^ Integer.rotateLeft(z1 + y0, 9);
         int z3 = y3 ^ Integer.rotateLeft(z2 + z1, 13);
@@ -146,7 +163,7 @@ public class salsa20 {
     }
 
     private static int[] rowRound(int[] input) {
-        //output matrix
+        //output matrix//
         int[] z = new int[16];
 
         int[] qr0 = quarterRound(new int[]{input[0], input[1], input[2], input[3]});
@@ -177,7 +194,7 @@ public class salsa20 {
     }
 
     private static int[] columnRound(int[] input) {
-        //output matrix
+        //output matrix//
         int[] z = new int[16];
 
         int[] qr0 = quarterRound(new int[]{input[0], input[4], input[8], input[12]});
@@ -211,26 +228,176 @@ public class salsa20 {
         return rowRound(columnRound(input));
     }
 
-    private static long littleendian(int[] input) {
-        long b0 = input[0];
-        long b1 = input[1];
-        long b2 = input[2];
-        long b3 = input[3];
+    private static int littleendian(int[] input) {
+        long b0 = input[0] & 0xff;
+        long b1 = input[1] & 0xff;
+        long b2 = input[2] & 0xff;
+        long b3 = input[3] & 0xff;
 
-        //long to keep all the components
-        long b = (long) (b0 + (b1 * Math.pow(2,8)) + (b2 * Math.pow(2,16)) + (b3 * Math.pow(2,24)));
+        //long to keep all the components//
+        //nvm not necesssary, keep int for consistancy//
+        int b = (int) (b0 + (b1 * 256) + (b2 * 65536) + (b3 * 16777216));
         return b;
     }
 
     /* 
+    private static int[] bigendian(int word) {
+        int[] res = new int[4];
+
+        res[0] = word & 0xff;
+        res[1] = (word / 256) & 0xff;
+        res[2] = (word / 65536) & 0xff;
+        res[3] = (word / 16777216) & 0xff;
+
+        return res;
+        
+    }
+        */
+    
     private static int[] hash(int[] input) {
-        //first section,
-       
+        //convert to 16 words//
+        int[] x = new int[16];
+        int[] temparr = new int[4];
+        for (int i = 0; i < 16; i++) {
+
+            temparr[0] = input[4 * i];
+            temparr[1] = input[4 * i + 1];
+            temparr[2] = input[4 * i + 2];
+            temparr[3] = input[4 * i + 3];
+            
+            x[i] = (int) littleendian(temparr);
+            
+        }
+
+        //10 doublerounds//
+        //maybe 8 rounds //
+        int[] z = x.clone();
+        for (int i = 0; i < 8; i++) {
+            z = doubleRound(z);
+        }
+        
+        //add words//
+        for (int i = 0; i < 16; i++) {
+            z[i] += x[i];
+        }
+
+        //convert back to 64 bites//
+        int[] output = new int[64];
+        for (int i = 0; i < 16; i++) {
+            int word = z[i];
+
+            output[4*i] =  word & 0xff;
+            output[4*i + 1] = (word >>> 8) & 0xff;
+            output[4*i + 2] = (word >>> 16) & 0xff;
+            output[4*i + 3] = (word >>> 24) & 0xff;
+
+        }
+
+        return output;
+    }
+    
+    //first version//
+    private static int[] expansion(int[] k0, int[] k1, int[] n) {
+    
+        int[] t0 = {101, 120, 112, 97};
+        int[] t1 = {110, 100, 32, 51};
+        int[] t2 = {50, 45, 98, 121};
+        int[] t3 = {116, 101, 32, 107};
+
+        int[] input = new int[64];
+        int pos = 0;
+
+        int[][] word = {t0, k0, t1, n, t2, k1, t3};
+        for (int[] w : word) {
+            System.arraycopy(w, 0, input, pos, w.length);
+            pos += w.length;
+        }
+    
+        return hash(input);
+
 
     }
-    */
+
+    //second version//
+    private static int[] expansion(int[] k, int[] n) {
     
+        int[] t0 = {101, 120, 112, 97};
+        int[] t1 = {110, 100, 32, 49};
+        int[] t2 = {54, 45, 98, 121};
+        int[] t3 = {116, 101, 32, 107};
+
+        int[] input = new int[64];
+        int pos = 0;
+
+        int[][] word = {t0, k, t1, n, t2, k, t3};
+        for (int[] w : word) {
+            System.arraycopy(w, 0, input, pos, w.length);
+            pos += w.length;
+        }
+    
+        return hash(input);
+
+
+    }
+
+    int[] encryption(int[] key, int[] nonce, int[] plaintxt) {
+        //int k = key.length;
+        //System.out.printf("keylength", k);
+    int[] ciphertext = new int[plaintxt.length];
+    long blocks = (plaintxt.length + 63) / 64;
+    
+    for (long blockNum = 0; blockNum < blocks; blockNum++) {
+        int[] counterBytes = new int[8];
+        long counter = blockNum;
+        for (int j = 0; j < 8; j++) {
+            counterBytes[j] = (int)((counter >> (8 * j)) & 0xFF);
+        }
+
+        //combine into 48 bytes//
+        //send into expansion function after//
+        int[] keystreamBlock;
+        //for 32byte key case//
+        if (key.length == 32) {
+            System.out.println("32 byte key taken");
+            // Split 32-byte key
+            int[] k0 = new int[16];
+            int[] k1 = new int[16];
+            System.arraycopy(key, 0, k0, 0, 16);
+            System.arraycopy(key, 16, k1, 0, 16);
+
+            int[] temp = new int[16];
+            System.arraycopy(nonce, 0, temp, 0, 8);
+            System.arraycopy(counterBytes, 0, temp, 8, 8);
+
+            //implicitly calling hash 
+            keystreamBlock = expansion(k0, k1, temp);
+        } else{
+            //must be 16bytekey then//
+            System.out.println("16 byte key taken\n");
+            int[] temp = new int[16];
+            System.arraycopy(nonce, 0, temp, 0, 8);
+            System.arraycopy(counterBytes, 0, temp, 8, 8);
+
+            //implicitly calling hash 
+            keystreamBlock = expansion(key, key, temp);
+        } 
+
+        //keystream xor plaintext step/
+        for (int i = 0; i < 64; i++) {
+            int messageIndex = (int)(blockNum * 64 + i);
+            //handle edge case error//
+            if (messageIndex >= plaintxt.length){
+                break;
+            }
+            ciphertext[messageIndex] = plaintxt[messageIndex] ^ keystreamBlock[i];
+        }
+    }
+
+    return ciphertext;
+    
+    }
 
 }
+
 
 
